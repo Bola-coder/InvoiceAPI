@@ -34,10 +34,6 @@ const userSchema = mongoose.Schema({
     enum: ["user", "admin", "superadmin"],
     default: "user",
   },
-  permissions: {
-    type: [String],
-    default: [],
-  },
   profileImage: {
     type: String,
   },

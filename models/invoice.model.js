@@ -1,0 +1,91 @@
+const mongoose = require("mongoose");
+
+const invoiceSchema = mongoose.Schema({
+  invoiceNumber: {
+    type: String,
+    required: [true, "Please provide an invoice number"],
+    unique: [true, "Invoice number already exists"],
+  },
+  clientName: {
+    type: String,
+    required: [true, "Please provide a client name"],
+  },
+  clientEmail: {
+    type: String,
+    required: [true, "Please provide a client email"],
+  },
+  clientAddress: {
+    type: String,
+    required: [true, "Please provide a client address"],
+  },
+  clientPhoneNumber: {
+    type: String,
+    required: [true, "Please provide a client phone number"],
+  },
+  invoiceDate: {
+    type: Date,
+    required: [true, "Please provide an invoice date"],
+  },
+  dueDate: {
+    type: Date,
+    required: [true, "Please provide a due date"],
+  },
+  items: [
+    {
+      itemName: {
+        type: String,
+        required: [true, "Please provide an item name"],
+      },
+      quantity: {
+        type: Number,
+        required: [true, "Please provide a quantity"],
+      },
+      price: {
+        type: Number,
+        required: [true, "Please provide a price"],
+      },
+    },
+  ],
+  total: {
+    type: Number,
+  },
+  amountPaid: {
+    type: Number,
+    default: 0,
+  },
+  balance: {
+    type: Number,
+  },
+  status: {
+    type: String,
+    enum: ["draft", "sent", "not-paid", "partially-paid", "paid"],
+    default: "draft",
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+});
+
+// Create an instance method to calculate the total of the invoice
+invoiceSchema.methods.calculateTotal = function () {
+  const total = this.items.reduce((acc, item) => {
+    return acc + item.quantity * item.price;
+  }, 0);
+  this.total = total;
+  return total;
+};
+// Create a post middleware to calculate the balance of the invoice
+invoiceSchema.post("findOneAndUpdate", function (doc, next) {
+  if (doc) {
+    const total = doc.calculateTotal();
+    const amountPaid = doc.amountPaid || 0;
+    doc.balance = total - amountPaid;
+    return doc.save();
+  }
+  next();
+});
+
+const Invoice = mongoose.model("Invoice", invoiceSchema);
+
+module.exports = Invoice;

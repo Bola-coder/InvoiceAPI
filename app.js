@@ -5,7 +5,7 @@ const errorHandler = require("./middlewares/error.middleware");
 const authRoutes = require("./routes/auth.route");
 const userRoutes = require("./routes/user.route");
 const adminRoutes = require("./routes/admin.route");
-const conferenceRoutes = require("./routes/conference.route");
+const invoiceRoutes = require("./routes/invoice.route");
 const AppError = require("./utils/AppError");
 const { cloudinaryConfig } = require("./utils/cloudinary");
 
@@ -35,6 +35,7 @@ app.get("/api/v1", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/invoice", invoiceRoutes);
 
 app.all("*", (req, res, next) => {
   const error = new AppError(
