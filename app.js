@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use("*", cloudinaryConfig);
-const appName = "AppName";
+const appName = "InvoiceAPI";
 
 // req.isAuthenticated is provided from the auth router
 app.get("/", (req, res) => {
@@ -35,7 +35,6 @@ app.get("/api/v1", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/conference", conferenceRoutes);
 
 app.all("*", (req, res, next) => {
   const error = new AppError(
