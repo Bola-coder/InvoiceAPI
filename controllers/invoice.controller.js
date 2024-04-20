@@ -120,6 +120,15 @@ const updateInvoiceDetails = catchAsync(async (req, res, next) => {
   });
 });
 
+// Delete Invoice
+// Filtering and Sorting
+// Pagination
+// Search
+// Export to CSV
+// Export to PDF
+// Send Invoice to Client
+// Invoice Status Update
+
 module.exports = {
   createNewInvoice,
   getAllInvoicesForUser,
