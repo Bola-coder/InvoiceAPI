@@ -11,7 +11,6 @@ const {
 } = require("../validations/client");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
-const { object } = require("joi");
 
 const createNewClient = catchAsync(async (req, res, next) => {
   const userId = req.user._id;

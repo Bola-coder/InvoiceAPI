@@ -13,7 +13,7 @@ router
 router
   .route("/:invoiceId")
   .get(invoiceController.getSingleInvoiceByUser)
-  .patch(invoiceController.updateInvoiceDetails);
-//   .delete(invoiceController.deleteInvoiceByUser);
+  .patch(invoiceController.updateInvoiceDetails)
+  .delete(invoiceController.deleteInvoice);
 
 module.exports = router;

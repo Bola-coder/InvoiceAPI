@@ -10,25 +10,34 @@ const {
   validateInvoiceCreation,
   validateInvoiceUpdate,
 } = require("./../validations/invoice");
+const { getClientById } = require("./../repositories/client");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/AppError");
 const filterObj = require("./../utils/filterObj");
+const APIFeatures = require("./../utils/ApiFeatures");
 
 // Create Invoice
 const createNewInvoice = catchAsync(async (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
   const { error } = validateInvoiceCreation(req.body);
   if (error) {
     return next(new AppError(`Validation Error: ${error.message}`, 400));
   }
 
+  const client = await getClientById(req.body.client, userId);
+
+  if (!client) {
+    return next(new AppError("Client with the specified ID not found", 404));
+  }
+
   const invoiceData = {
     ...req.body,
-    user: req.user._id,
+    user: userId,
   };
 
+  console.log("Invoice Data", invoiceData);
+
   const invoice = await createInvoice({
-    user: userId,
     ...invoiceData,
   });
 
@@ -50,8 +59,16 @@ const createNewInvoice = catchAsync(async (req, res, next) => {
 });
 
 const getAllInvoicesForUser = catchAsync(async (req, res, next) => {
-  const userId = req.user._id;
-  const invoices = await getInvoicesByUser(userId);
+  const userId = req.user.id;
+  console.log(req.query);
+  const query = getInvoicesByUser(userId);
+  const features = new APIFeatures(query, req.query);
+
+  features.filtering().sorting().limitFields().pagination();
+
+  const invoices = await features.query;
+  // console.log("Invoices", invoices);
+
   res.status(200).json({
     status: "success",
     result: invoices.length,
@@ -95,10 +112,6 @@ const updateInvoiceDetails = catchAsync(async (req, res, next) => {
   const allowedFields = filterObj(
     req.body,
     "invoiceNumber",
-    "clientName",
-    "clientEmail",
-    "clientAddress",
-    "clientPhoneNumber",
     "invoiceDate",
     "dueDate",
     "items",
@@ -120,9 +133,32 @@ const updateInvoiceDetails = catchAsync(async (req, res, next) => {
   });
 });
 
-// Delete Invoice
-// Filtering and Sorting
-// Pagination
+const deleteInvoice = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const invoiceId = req.params.invoiceId;
+
+  if (!invoiceId) return next(new AppError("Invoice ID is required", 400));
+
+  const invoice = await getInvoiceByUser(userId, invoiceId);
+
+  if (!invoice) {
+    return next(new AppError("Invoice with the specified ID not found", 404));
+  }
+
+  const deletedInvoice = await deleteInvoiceByUser(userId, invoiceId);
+
+  if (!deletedInvoice) {
+    return next(new AppError("Invoice not deleted", 400));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Invoice deleted successfully",
+    data: null,
+  });
+});
+
+// Features to add
 // Search
 // Export to CSV
 // Export to PDF
@@ -134,4 +170,5 @@ module.exports = {
   getAllInvoicesForUser,
   getSingleInvoiceByUser,
   updateInvoiceDetails,
+  deleteInvoice,
 };

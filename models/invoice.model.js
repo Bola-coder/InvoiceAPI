@@ -1,3 +1,4 @@
+const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const invoiceSchema = mongoose.Schema({
@@ -6,21 +7,10 @@ const invoiceSchema = mongoose.Schema({
     required: [true, "Please provide an invoice number"],
     unique: [true, "Invoice number already exists"],
   },
-  clientName: {
-    type: String,
-    required: [true, "Please provide a client name"],
-  },
-  clientEmail: {
-    type: String,
-    required: [true, "Please provide a client email"],
-  },
-  clientAddress: {
-    type: String,
-    required: [true, "Please provide a client address"],
-  },
-  clientPhoneNumber: {
-    type: String,
-    required: [true, "Please provide a client phone number"],
+  client: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Client",
+    required: [true, "Please provide a client"],
   },
   invoiceDate: {
     type: Date,
@@ -63,7 +53,7 @@ const invoiceSchema = mongoose.Schema({
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Users",
   },
 });
 

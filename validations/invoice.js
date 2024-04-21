@@ -7,23 +7,10 @@ const validateInvoiceCreation = (obj) => {
       .string()
       .required()
       .error(() => new Error("Please provide an invoice number")),
-    clientName: joi
+    client: joi
       .string()
       .required()
-      .error(() => new Error("Please provide a client name")),
-    clientEmail: joi
-      .string()
-      .email({ tlds: { allow: false } })
-      .required()
-      .error(() => new Error("Please provide a valid email address")),
-    clientAddress: joi
-      .string()
-      .required()
-      .error(() => new Error("Please provide a client address")),
-    clientPhoneNumber: joi
-      .string()
-      .required()
-      .error(() => new Error("Please provide a client phone number")),
+      .error(() => new Error("Please provide a client id")),
     invoiceDate: joi
       .date()
       .required()
@@ -64,19 +51,7 @@ const validateInvoiceUpdate = (obj) => {
     invoiceNumber: joi
       .string()
       .error(() => new Error("Please provide an invoice number")),
-    clientName: joi
-      .string()
-      .error(() => new Error("Please provide a client name")),
-    clientEmail: joi
-      .string()
-      .email({ tlds: { allow: false } })
-      .error(() => new Error("Please provide a valid email address")),
-    clientAddress: joi
-      .string()
-      .error(() => new Error("Please provide a client address")),
-    clientPhoneNumber: joi
-      .string()
-      .error(() => new Error("Please provide a client phone number")),
+    client: joi.string().error(() => new Error("Please provide a client id")),
     invoiceDate: joi
       .date()
       .error(() => new Error("Please provide an invoice date")),

@@ -2,21 +2,25 @@ const Invoice = require("./../models/invoice.model");
 
 const createInvoice = async function (invoiceData) {
   const invoice = await Invoice.create(invoiceData);
-  return invoice;
+  return invoice.populate("client user");
 };
 
-const getInvoicesByUser = async function (userId) {
-  const invoices = await Invoice.find({ user: userId });
+const getInvoicesByUser = function (userId) {
+  const invoices = Invoice.find({ user: userId }).populate("client user");
+  // console.log("Invoices", invoices);
   return invoices;
 };
 
 const getInvoiceById = async function (invoiceId) {
-  const invoice = await Invoice.findById(invoiceId);
+  const invoice = await Invoice.findById(invoiceId).populate("client user");
   return invoice;
 };
 
 const getInvoiceByUser = async function (userId, invoiceId) {
-  const invoice = await Invoice.findOne({ _id: invoiceId, user: userId });
+  const invoice = await Invoice.findOne({
+    _id: invoiceId,
+    user: userId,
+  }).populate("client user");
   return invoice;
 };
 
@@ -25,7 +29,7 @@ const updateInvoiceByUser = async function (userId, invoiceId, invoiceData) {
     { _id: invoiceId, user: userId },
     invoiceData,
     { new: true }
-  );
+  ).populate("client user");
   return invoice;
 };
 
