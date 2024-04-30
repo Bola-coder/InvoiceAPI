@@ -7,6 +7,8 @@ const userRoutes = require("./routes/user.route");
 const adminRoutes = require("./routes/admin.route");
 const invoiceRoutes = require("./routes/invoice.route");
 const clientRoutes = require("./routes/client.route");
+const companyRoutes = require("./routes/company.route");
+const paymentRoutes = require("./routes/payment.route");
 const AppError = require("./utils/AppError");
 const { cloudinaryConfig } = require("./utils/cloudinary");
 
@@ -36,9 +38,10 @@ app.get("/api/v1", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/invoice", invoiceRoutes);
-app.use("/api/v1/client", clientRoutes);
-
+app.use("/api/v1/invoices", invoiceRoutes);
+app.use("/api/v1/clients", clientRoutes);
+app.use("/api/v1/company", companyRoutes);
+app.use("/api/v1/payment", paymentRoutes);
 app.all("*", (req, res, next) => {
   const error = new AppError(
     `Can't find ${req.originalUrl} using http method ${req.method} on this server. Route not defined`,

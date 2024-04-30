@@ -16,4 +16,6 @@ router
   .patch(invoiceController.updateInvoiceDetails)
   .delete(invoiceController.deleteInvoice);
 
+router.get("/invoice/search", invoiceController.searchForInvoice);
+
 module.exports = router;

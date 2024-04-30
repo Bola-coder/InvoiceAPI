@@ -57,6 +57,8 @@ const invoiceSchema = mongoose.Schema({
   },
 });
 
+invoiceSchema.index({ invoiceNumber: "text" });
+
 // Create an instance method to calculate the total of the invoice
 invoiceSchema.methods.calculateTotal = function () {
   const total = this.items.reduce((acc, item) => {

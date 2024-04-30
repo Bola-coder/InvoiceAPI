@@ -158,8 +158,35 @@ const deleteInvoice = catchAsync(async (req, res, next) => {
   });
 });
 
+// FIXME: Not working as expected
+const searchForInvoice = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const query = req.query.q;
+
+  if (!query) {
+    return next(new AppError("Search query is required", 400));
+  }
+
+  let queryResult = getInvoicesByUser(userId);
+
+  queryResult = queryResult.find({ $text: { $search: query } });
+
+  const invoices = await queryResult;
+
+  if (!invoices) {
+    return next(new AppError("No invoices found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Invoices retrieved successfully",
+    data: {
+      invoices,
+    },
+  });
+});
+
 // Features to add
-// Search
 // Export to CSV
 // Export to PDF
 // Send Invoice to Client
@@ -171,4 +198,5 @@ module.exports = {
   getSingleInvoiceByUser,
   updateInvoiceDetails,
   deleteInvoice,
+  searchForInvoice,
 };
