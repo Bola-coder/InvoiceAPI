@@ -1,5 +1,6 @@
 const {
   createCompany,
+  getCompanies,
   getCompanyById,
   updateCompany,
   deleteCompany,
@@ -7,6 +8,8 @@ const {
 const { validateCompanyCreation } = require("./../validations/company");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
+const { uploader } = require("./../utils/cloudinary");
+const { dataUri } = require("./../utils/multer");
 
 const createNewCompany = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
@@ -37,4 +40,152 @@ const createNewCompany = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { createNewCompany };
+const uploadCompanyLogo = catchAsync(async (req, res, next) => {
+  const { companyId } = req.params;
+  const userId = req.user.id;
+  if (!companyId) {
+    return next(
+      new AppError(
+        "Please provide the id of the company you want to update",
+        400
+      )
+    );
+  }
+  if (!req.file) {
+    return next(new AppError("Please upload an image for the logo", 400));
+  }
+
+  const company = await getCompanyById(companyId);
+  console.log(company);
+  if (!company?.user?._id.equals(userId)) {
+    return next(
+      new AppError("You are not authorized to modify this company", 401)
+    );
+  }
+
+  const file = dataUri(req).content;
+
+  try {
+    const result = await uploader.upload(file, {
+      folder: "InvoiceAPI/companies/logo",
+      use_filename: true,
+    });
+    const logo = result.secure_url;
+    company.logo = logo;
+    await company.save();
+    res.status(200).json({
+      status: "success",
+      message: "Company logo updated successfully",
+      data: {
+        company,
+      },
+    });
+  } catch (error) {
+    return next(
+      new AppError(
+        `Error while uploading profile picture with message: ${error.message}`,
+        404
+      )
+    );
+  }
+});
+
+// get all companies
+const getAllCompanies = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const companies = await getCompanies(userId);
+
+  if (!companies) {
+    return next(new AppError("Companies not found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    result: companies.length,
+    message: "Companies retrieved successfully",
+    data: {
+      companies,
+    },
+  });
+});
+
+// Get comapny by id
+const getCompanyById = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const companyId = req.params.companyId;
+
+  const company = await getCompanyById(userId, companyId);
+
+  if (!company) {
+    return next(new AppError("Company not found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Company retrieved successfully",
+    data: {
+      company,
+    },
+  });
+});
+
+// Update company
+const updateCompany = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const companyId = req.params.companyId;
+
+  if (!companyId) return next(new AppError("Company ID is required", 400));
+
+  const company = await getCompanyById(userId, companyId);
+
+  if (!company) {
+    return next(new AppError("Company not found", 404));
+  }
+
+  const allowedFields = filterObj(
+    req.body,
+    "name",
+    "address",
+    "email",
+    "phone",
+    "website"
+  );
+
+  const updatedCompany = await updateCompany(companyId, allowedFields);
+
+  if (!updatedCompany) {
+    return next(new AppError("Company not updated", 400));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Company updated successfully",
+    data: {
+      company: updatedCompany,
+    },
+  });
+});
+
+// Delete company
+const deleteCompany = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const companyId = req.params.companyId;
+
+  if (!companyId) return next(new AppError("Company ID is required", 400));
+
+  const company = await getCompanyById(userId, companyId);
+
+  if (!company) {
+    return next(new AppError("Company not found", 404));
+  }
+
+  await deleteCompany(companyId);
+
+  res.status(200).json({
+    status: "success",
+    message: "Company deleted successfully",
+    data: null,
+  });
+});
+
+module.exports = { createNewCompany, uploadCompanyLogo, getAllCompanies };

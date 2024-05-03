@@ -16,7 +16,7 @@ const updateProfilePiture = catchAsync(async (req, res, next) => {
   const file = dataUri(req).content;
   try {
     const result = await uploader.upload(file, {
-      folder: "Synconference",
+      folder: "InvoiceAPI/users/profile",
       use_filename: true,
     });
 

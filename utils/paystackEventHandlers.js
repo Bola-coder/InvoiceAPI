@@ -15,7 +15,7 @@ async function handleChargeSuccessOrSubscriptionCreate(event) {
   });
 
   if (exisitingPayment) {
-    exisitingPayment.status == "success", await exisitingPayment.save();
+    // exisitingPayment.status == "success", await exisitingPayment.save();
     return;
   }
 
@@ -27,6 +27,7 @@ async function handleChargeSuccessOrSubscriptionCreate(event) {
     reference: reference,
     status: "success",
   });
+  console.log("Payment is: ", payment);
 
   console.log("Payment successful for", event);
 }

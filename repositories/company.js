@@ -5,8 +5,16 @@ const createCompany = async function (companyData) {
   return company;
 };
 
-const getCompanyById = async function (companyId) {
-  const company = await Company.findById(company).populate("user");
+const getCompanies = async function (userId) {
+  const companies = await Company.find({ user: userId }).populate("user");
+  return companies;
+};
+
+const getCompanyById = async function (userId, companyId) {
+  const company = await Company.findOne({
+    id: companyId,
+    user: userId,
+  }).populate("user");
   return company;
 };
 
@@ -24,6 +32,7 @@ const deleteCompany = async function (companyId) {
 
 module.exports = {
   createCompany,
+  getCompanies,
   getCompanyById,
   updateCompany,
   deleteCompany,
