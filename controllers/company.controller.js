@@ -130,7 +130,7 @@ const getComapnyDetails = catchAsync(async (req, res, next) => {
 });
 
 // Update company
-const updateCompany = catchAsync(async (req, res, next) => {
+const updateCompanyDetails = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
   const companyId = req.params.companyId;
 
@@ -167,7 +167,7 @@ const updateCompany = catchAsync(async (req, res, next) => {
 });
 
 // Delete company
-const deleteCompany = catchAsync(async (req, res, next) => {
+const deleteCompanyRecord = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
   const companyId = req.params.companyId;
 
