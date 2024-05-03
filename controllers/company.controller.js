@@ -110,7 +110,7 @@ const getAllCompanies = catchAsync(async (req, res, next) => {
 });
 
 // Get comapny by id
-const getCompanyById = catchAsync(async (req, res, next) => {
+const getComapnyDetails = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
   const companyId = req.params.companyId;
 
