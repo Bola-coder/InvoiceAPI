@@ -100,7 +100,7 @@ const login = catchAsync(async (req, res, next) => {
     .cookie("token", token, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     })
     .status(200)
     .json({
