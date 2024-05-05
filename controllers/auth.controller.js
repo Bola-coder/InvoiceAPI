@@ -64,7 +64,8 @@ const signup = catchAsync(async (req, res, next) => {
   const token = signJWTToken(newUser._id);
   res
     .cookie("token", token, {
-      httpOnly: true,
+      //TODO: To be changed
+      httpOnly: false,
       maxAge: 24 * 60 * 60 * 1000,
       // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     })
@@ -98,7 +99,8 @@ const login = catchAsync(async (req, res, next) => {
   const token = signJWTToken(user._id);
   res
     .cookie("token", token, {
-      httpOnly: true,
+      //TODO: To be changed
+      httpOnly: false,
       maxAge: 24 * 60 * 60 * 1000,
       // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     })
