@@ -16,7 +16,7 @@ const { cloudinaryConfig } = require("./utils/cloudinary");
 const app = express();
 
 app.use(morgan("dev"));
-app.use(cors());
+app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
