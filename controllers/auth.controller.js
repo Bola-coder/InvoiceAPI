@@ -67,7 +67,7 @@ const signup = catchAsync(async (req, res, next) => {
       //TODO: To be changed
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
-      // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     })
     .status(200)
     .json({
@@ -102,7 +102,7 @@ const login = catchAsync(async (req, res, next) => {
       //TODO: To be changed
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
-      // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     })
     .status(200)
     .json({
