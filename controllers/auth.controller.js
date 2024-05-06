@@ -66,7 +66,7 @@ const signup = catchAsync(async (req, res, next) => {
     .cookie("token", token, {
       //TODO: To be changed
       httpOnly: false,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
       // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     })
     .status(200)
@@ -101,7 +101,7 @@ const login = catchAsync(async (req, res, next) => {
     .cookie("token", token, {
       //TODO: To be changed
       httpOnly: false,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
       // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     })
     .status(200)
