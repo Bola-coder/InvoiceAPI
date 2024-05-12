@@ -10,13 +10,14 @@ const invoiceRoutes = require("./routes/invoice.route");
 const clientRoutes = require("./routes/client.route");
 const companyRoutes = require("./routes/company.route");
 const paymentRoutes = require("./routes/payment.route");
+const invoicePaymentRoutes = require("./routes/invoicePayment.route");
 const AppError = require("./utils/AppError");
 const { cloudinaryConfig } = require("./utils/cloudinary");
 
 const app = express();
 
 app.use(morgan("dev"));
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -44,6 +45,7 @@ app.use("/api/v1/invoices", invoiceRoutes);
 app.use("/api/v1/clients", clientRoutes);
 app.use("/api/v1/company", companyRoutes);
 app.use("/api/v1/payment", paymentRoutes);
+app.use("/api/v1/invoicePayment", invoicePaymentRoutes);
 app.all("*", (req, res, next) => {
   const error = new AppError(
     `Can't find ${req.originalUrl} using http method ${req.method} on this server. Route not defined`,

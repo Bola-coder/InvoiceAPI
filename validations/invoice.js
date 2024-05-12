@@ -71,6 +71,10 @@ const validateInvoiceUpdate = (obj) => {
       )
       .error(() => new Error("Please provide an item")),
     total: joi.number().error(() => new Error("Please provide a total")),
+    status: joi
+      .string()
+      .valid("draft", "sent", "not-paid", "partially-paid", "paid")
+      .error(() => new Error("Invalid status")),
     amountPaid: joi.number().error(() => new Error("Please provide an amount")),
   });
   return schema.validate(obj);

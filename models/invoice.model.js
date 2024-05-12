@@ -65,8 +65,11 @@ invoiceSchema.methods.calculateTotal = function () {
     return acc + item.quantity * item.price;
   }, 0);
   this.total = total;
+  let tempBalance = this.total - (this.amountPaid || 0);
+  this.balance = tempBalance;
   return total;
 };
+
 // Create a post middleware to calculate the balance of the invoice
 invoiceSchema.post("findOneAndUpdate", function (doc, next) {
   if (doc) {

@@ -10,6 +10,7 @@ router
   .post(invoiceController.createNewInvoice)
   .get(invoiceController.getAllInvoicesForUser);
 
+router.route("/stats").get(invoiceController.getInvoiceStats);
 router
   .route("/:invoiceId")
   .get(invoiceController.getSingleInvoiceByUser)

@@ -68,7 +68,7 @@ const signup = catchAsync(async (req, res, next) => {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
       secure: req.secure || req.headers["x-forwarded-proto"] === "https",
-      sameSite: "none",
+      // sameSite: "none",
     })
     .status(200)
     .json({
@@ -98,18 +98,20 @@ const login = catchAsync(async (req, res, next) => {
   }
 
   const token = signJWTToken(user._id);
+  const userData = { ...user._doc };
+  delete userData.password;
   res
     .cookie("token", token, {
       //TODO: To be changed
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
       secure: req.secure || req.headers["x-forwarded-proto"] === "https",
-      sameSite: "none",
+      // sameSite: "none",
     })
     .status(200)
     .json({
       status: "success",
-      data: user,
+      data: userData,
     });
 });
 
@@ -187,6 +189,20 @@ const verifyUserEmail = catchAsync(async (req, res, next) => {
   });
 });
 
+const checkAuthenticationStatus = catchAsync(async (req, res, next) => {
+  if (req.user) {
+    res.status(200).json({
+      status: "success",
+      message: "User is authenticated",
+    });
+  } else {
+    res.status(401).json({
+      status: "error",
+      message: "User is not authenticated",
+    });
+  }
+});
+
 // Logout function
 const logout = async (req, res) => {
   res
@@ -201,4 +217,5 @@ module.exports = {
   resendEmailVerificationToken,
   verifyUserEmail,
   logout,
+  checkAuthenticationStatus,
 };

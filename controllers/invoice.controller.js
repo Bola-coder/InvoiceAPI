@@ -1,3 +1,4 @@
+const Invoices = require("./../models/invoice.model");
 const {
   createInvoice,
   getInvoicesByUser,
@@ -48,6 +49,7 @@ const createNewInvoice = catchAsync(async (req, res, next) => {
   }
   //   Calculate the invoice total
   invoice.calculateTotal();
+  await invoice.save();
 
   res.status(201).json({
     status: "success",
@@ -115,7 +117,8 @@ const updateInvoiceDetails = catchAsync(async (req, res, next) => {
     "invoiceDate",
     "dueDate",
     "items",
-    "amountPaid"
+    "amountPaid",
+    "status"
   );
 
   const invoice = await updateInvoiceByUser(userId, invoiceId, allowedFields);
@@ -186,6 +189,56 @@ const searchForInvoice = catchAsync(async (req, res, next) => {
   });
 });
 
+const getInvoiceStats = catchAsync(async (req, res, next) => {
+  /* Get the total number of invoices in the specified period - (days) */
+  const intervalPeriod = parseInt(req.query.intervalPeriod);
+  console.log(intervalPeriod);
+  const userId = req.user._id;
+  const invoices = await Invoices.aggregate([
+    {
+      $match: {
+        user: userId,
+        invoiceDate: {
+          $gte: new Date(
+            new Date().setDate(new Date().getDate() - intervalPeriod)
+          ),
+          $lte: new Date(),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalInvoices: { $sum: 1 },
+        totalAmount: { $sum: "$total" },
+        totalAmountRecieved: { $sum: "$amountPaid" },
+        balanceDue: { $sum: "$balance" },
+      },
+    },
+    {
+      $sort: { invoiceDate: -1 },
+    },
+  ]);
+
+  if (invoices.length === 0) {
+    res.status(200).json({
+      status: "success",
+      message: "No invoices found",
+      data: {
+        invoiceStats: [],
+      },
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Invoice stats retrieved successfully",
+    data: {
+      invoiceStats: invoices[0],
+    },
+  });
+});
+
 // Features to add
 // Export to CSV
 // Export to PDF
@@ -199,4 +252,5 @@ module.exports = {
   updateInvoiceDetails,
   deleteInvoice,
   searchForInvoice,
+  getInvoiceStats,
 };
