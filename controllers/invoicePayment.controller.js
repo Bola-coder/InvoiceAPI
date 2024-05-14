@@ -55,4 +55,24 @@ const createPaymentForInvoice = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { createPaymentForInvoice };
+const getPaymentsForAnInvoice = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const invoiceId = req.params.invoiceId;
+  const invoicePayments = await InvoicePayment.find({
+    user: userId,
+    invoiceId: invoiceId,
+  });
+
+  if (!invoicePayments) {
+    return next(new AppError("No payment history found for this invoice", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      invoicePayments,
+    },
+  });
+});
+
+module.exports = { createPaymentForInvoice, getPaymentsForAnInvoice };

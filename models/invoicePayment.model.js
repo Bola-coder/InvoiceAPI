@@ -8,10 +8,12 @@ const invoicePaymentSchema = mongoose.Schema({
   },
   payments: [
     {
-      // paymentMethod: {
-      //   type: String,
-      //   required: [true, "Please provide a payment method"],
-      // },
+      paymentMethod: {
+        type: String,
+        required: [true, "Please provide a payment method"],
+        enum: ["cash", "cheque", "bank-transfer", "credit-card", "other"],
+        default: "cash",
+      },
       amount: {
         type: Number,
         required: [true, "Please provide an amount"],

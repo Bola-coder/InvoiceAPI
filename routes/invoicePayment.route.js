@@ -9,4 +9,8 @@ router.use(authMiddleware.protectRoute, authMiddleware.checkIfEmailIsVerified);
 
 router.route("/").post(invoicePaymentController.createPaymentForInvoice);
 
+router
+  .route("/:invoiceId")
+  .get(invoicePaymentController.getPaymentsForAnInvoice);
+
 module.exports = router;
