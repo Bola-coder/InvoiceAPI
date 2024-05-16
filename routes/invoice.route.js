@@ -19,4 +19,8 @@ router
 
 router.get("/invoice/search", invoiceController.searchForInvoice);
 
+router
+  .route("/convert/:invoiceId")
+  .patch(invoiceController.convertInvoiceToPdf);
+
 module.exports = router;

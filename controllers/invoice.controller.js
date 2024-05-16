@@ -1,4 +1,5 @@
 const Invoices = require("./../models/invoice.model");
+const fs = require("fs");
 const {
   createInvoice,
   getInvoicesByUser,
@@ -16,6 +17,9 @@ const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/AppError");
 const filterObj = require("./../utils/filterObj");
 const APIFeatures = require("./../utils/ApiFeatures");
+const createInvoiceDetailsTemplate = require("./../helper/createInvoiceDetailsTemplate");
+const convertHtmlTemplateToPdf = require("./../helper/convertHtmlToPdf");
+const { uploader } = require("./../utils/cloudinary");
 
 // Create Invoice
 const createNewInvoice = catchAsync(async (req, res, next) => {
@@ -239,11 +243,52 @@ const getInvoiceStats = catchAsync(async (req, res, next) => {
   });
 });
 
+const convertInvoiceToPdf = catchAsync(async (req, res, next) => {
+  const { invoiceId } = req.params;
+  if (!invoiceId) {
+    return next(new AppError("Please provide an invoice ID", 400));
+  }
+  const invoice = await getInvoiceById(invoiceId);
+
+  if (!invoice) {
+    return next(new AppError("Can't find invoice with the specified ID", 404));
+  }
+
+  const invoiceHtmlTemplate = createInvoiceDetailsTemplate(invoice);
+
+  const pdfFilePath = await convertHtmlTemplateToPdf(invoiceHtmlTemplate);
+  // Upload to cloudinary
+  try {
+    const pdfUrl = await new Promise((resolve, reject) => {
+      uploader.upload(
+        pdfFilePath,
+        { resource_type: "raw", folder: "InvoiceAPI/Invoices/pdf" },
+        (err, result) => {
+          if (err) {
+            console.error("Cloudinary upload error:", err);
+            reject(new AppError(err.message, 404));
+          }
+          // Delete PDF file from local machine
+          fs.unlinkSync(pdfFilePath);
+          console.log(result.secure_url);
+          resolve(result.secure_url);
+        }
+      );
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Template gotten and converted successfully",
+      data: {
+        pdf: pdfUrl,
+      },
+    });
+  } catch (errpr) {
+    return next(new AppError("Failed to convert to pdf"));
+  }
+});
+
 // Features to add
-// Export to CSV
-// Export to PDF
 // Send Invoice to Client
-// Invoice Status Update
 
 module.exports = {
   createNewInvoice,
@@ -253,4 +298,5 @@ module.exports = {
   deleteInvoice,
   searchForInvoice,
   getInvoiceStats,
+  convertInvoiceToPdf,
 };
