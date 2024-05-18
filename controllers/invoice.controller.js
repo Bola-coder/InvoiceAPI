@@ -275,6 +275,9 @@ const convertInvoiceToPdf = catchAsync(async (req, res, next) => {
         }
       );
     });
+
+    invoice.pdf = pdfUrl;
+    await invoice.save();
     res.status(200).json({
       status: "success",
       message: "Template gotten and converted successfully",
@@ -285,6 +288,109 @@ const convertInvoiceToPdf = catchAsync(async (req, res, next) => {
   } catch (errpr) {
     return next(new AppError("Failed to convert to pdf"));
   }
+});
+
+const getInvoiceByStatusGraphStat = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const invoices = await Invoices.aggregate([
+    {
+      $match: {
+        user: userId,
+      },
+    },
+    {
+      $group: {
+        _id: "$status",
+        total: { $sum: 1 },
+      },
+    },
+  ]);
+
+  if (invoices.length === 0) {
+    return next(new AppError("No invoices found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Invoice stats retrieved successfully",
+    data: {
+      invoices,
+    },
+  });
+});
+
+const getTotalNumberOfInvoicesCreatedEachDay = catchAsync(
+  async (req, res, next) => {
+    const userId = req.user._id;
+    const numberOfDays = parseInt(req.query.days);
+    const invoices = await Invoices.aggregate([
+      {
+        $match: {
+          user: userId,
+          invoiceDate: {
+            $gte: new Date(
+              new Date().setDate(new Date().getDate() - numberOfDays)
+            ),
+            $lte: new Date(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$invoiceDate" } },
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    if (invoices.length === 0) {
+      return next(new AppError("No invoices found", 404));
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Invoice stats retrieved successfully",
+      data: {
+        invoices,
+      },
+    });
+  }
+);
+
+const getPaymentStatsForDays = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const numberOfDays = parseInt(req.query.days);
+  const paymentStats = await Invoices.aggregate([
+    {
+      $match: {
+        user: userId,
+        invoiceDate: {
+          $gte: new Date(
+            new Date().setDate(new Date().getDate() - numberOfDays)
+          ),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$invoiceDate" } },
+        total: { $sum: "$total" },
+        totalPaid: { $sum: "$amountPaid" },
+      },
+    },
+  ]);
+
+  if (paymentStats.length === 0) {
+    return next(new AppError("No invoices found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Invoice stats retrieved successfully",
+    data: {
+      paymentStats,
+    },
+  });
 });
 
 // Features to add
@@ -299,4 +405,7 @@ module.exports = {
   searchForInvoice,
   getInvoiceStats,
   convertInvoiceToPdf,
+  getInvoiceByStatusGraphStat,
+  getTotalNumberOfInvoicesCreatedEachDay,
+  getPaymentStatsForDays,
 };

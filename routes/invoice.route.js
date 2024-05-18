@@ -11,6 +11,16 @@ router
   .get(invoiceController.getAllInvoicesForUser);
 
 router.route("/stats").get(invoiceController.getInvoiceStats);
+
+router
+  .route("/stats/getByStatus")
+  .get(invoiceController.getInvoiceByStatusGraphStat);
+
+router
+  .route("/stats/getTotalInvoice")
+  .get(invoiceController.getTotalNumberOfInvoicesCreatedEachDay);
+
+router.route("/stats/payment").get(invoiceController.getPaymentStatsForDays);
 router
   .route("/:invoiceId")
   .get(invoiceController.getSingleInvoiceByUser)
