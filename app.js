@@ -23,7 +23,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://swyftinvoice.netlify.app/login",
+      "https://swyftinvoice.netlify.app",
     ],
   })
 );
