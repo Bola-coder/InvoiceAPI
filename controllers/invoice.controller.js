@@ -368,6 +368,7 @@ const getPaymentStatsForDays = catchAsync(async (req, res, next) => {
           $gte: new Date(
             new Date().setDate(new Date().getDate() - numberOfDays)
           ),
+          $lte: new Date(),
         },
       },
     },
@@ -377,6 +378,9 @@ const getPaymentStatsForDays = catchAsync(async (req, res, next) => {
         total: { $sum: "$total" },
         totalPaid: { $sum: "$amountPaid" },
       },
+    },
+    {
+      $sort: { _id: 1 },
     },
   ]);
 

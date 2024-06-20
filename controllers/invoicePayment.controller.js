@@ -75,4 +75,43 @@ const getPaymentsForAnInvoice = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { createPaymentForInvoice, getPaymentsForAnInvoice };
+const getPaymentStats = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const { days } = req.query;
+  const paymentStats = await InvoicePayment.aggregate([
+    {
+      $match: {
+        user: userId,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: "$payments.date" },
+        },
+        totalAmountPaid: { $sum: "$payments.amount" },
+        totalPayments: { $sum: 1 },
+      },
+    },
+    {
+      $sort: {
+        _id: 1,
+      },
+    },
+    {
+      $limit: parseInt(days) || 7,
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      paymentStats,
+    },
+  });
+});
+module.exports = {
+  createPaymentForInvoice,
+  getPaymentsForAnInvoice,
+  getPaymentStats,
+};

@@ -9,6 +9,8 @@ router.use(authMiddleware.protectRoute, authMiddleware.checkIfEmailIsVerified);
 
 router.route("/").post(invoicePaymentController.createPaymentForInvoice);
 
+router.route("/stats").get(invoicePaymentController.getPaymentStats);
+
 router
   .route("/:invoiceId")
   .get(invoicePaymentController.getPaymentsForAnInvoice);
