@@ -40,7 +40,7 @@ const createNewInvoice = catchAsync(async (req, res, next) => {
     user: userId,
   };
 
-  console.log("Invoice Data", invoiceData);
+  // console.log("Invoice Data", invoiceData);
 
   const invoice = await createInvoice({
     ...invoiceData,
@@ -232,6 +232,7 @@ const getInvoiceStats = catchAsync(async (req, res, next) => {
         invoiceStats: [],
       },
     });
+    return;
   }
 
   res.status(200).json({
@@ -385,7 +386,14 @@ const getPaymentStatsForDays = catchAsync(async (req, res, next) => {
   ]);
 
   if (paymentStats.length === 0) {
-    return next(new AppError("No invoices found", 404));
+    res.status(200).json({
+      status: "success",
+      message: "No payment stats found",
+      data: {
+        invoiceStats: [],
+      },
+    });
+    return;
   }
 
   res.status(200).json({

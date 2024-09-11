@@ -1,6 +1,13 @@
 const { required } = require("joi");
 const mongoose = require("mongoose");
 
+const invoiceCounterSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  seq: { type: Number, default: 0 },
+});
+
+const InvoiceCounter = mongoose.model("InvoiceCounter", invoiceCounterSchema);
+
 const invoiceSchema = mongoose.Schema({
   invoiceNumber: {
     type: String,
@@ -84,6 +91,26 @@ invoiceSchema.post("findOneAndUpdate", function (doc, next) {
   next();
 });
 
+// Create a pre save hookk to assing an invoice number
+invoiceSchema.pre("validate", async function (next) {
+  const invoice = this;
+  if (!invoice.isNew) return next();
+  try {
+    const counter = await InvoiceCounter.findOneAndUpdate(
+      {
+        id: "invoice",
+      },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    invoice.invoiceNumber = `INV-${counter.seq.toString().padStart(6, "0")}`;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 const Invoice = mongoose.model("Invoice", invoiceSchema);
 
 module.exports = Invoice;
+module.exports.InvoiceCounter = InvoiceCounter;

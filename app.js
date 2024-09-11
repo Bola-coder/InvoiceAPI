@@ -55,6 +55,7 @@ app.use("/api/v1/clients", clientRoutes);
 app.use("/api/v1/company", companyRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/invoicePayment", invoicePaymentRoutes);
+
 app.all("*", (req, res, next) => {
   const error = new AppError(
     `Can't find ${req.originalUrl} using http method ${req.method} on this server. Route not defined`,

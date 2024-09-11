@@ -3,10 +3,10 @@ const joi = require("joi");
 // Validation for the invoice creation
 const validateInvoiceCreation = (obj) => {
   const schema = joi.object().keys({
-    invoiceNumber: joi
-      .string()
-      .required()
-      .error(() => new Error("Please provide an invoice number")),
+    // invoiceNumber: joi
+    //   .string()
+    //   .required()
+    //   .error(() => new Error("Please provide an invoice number")),
     client: joi
       .string()
       .required()
