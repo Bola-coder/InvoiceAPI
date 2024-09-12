@@ -2,6 +2,10 @@ const InvoicePayment = require("../models/invoicePayment.model.js");
 const Invoice = require("../models/invoice.model.js");
 const catchAsync = require("../utils/catchAsync.js");
 const AppError = require("../utils/AppError.js");
+const sendEmail = require("../utils/email.js");
+const createReceiptTemplate = require("../templates/receipt.js");
+const { populate } = require("dotenv");
+const convertHtmlTemplateToPdf = require("../helper/convertHtmlToPdf.js");
 
 const createPaymentForInvoice = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
@@ -110,8 +114,57 @@ const getPaymentStats = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+const getRecieptForPayment = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const invoiceId = req.params.invoiceId;
+
+  const invoicePayments = await InvoicePayment.find({
+    user: userId,
+    invoiceId: invoiceId,
+  });
+
+  if (!invoicePayments) {
+    return next(new AppError("No payment history found for this invoice", 404));
+  }
+
+  const invoice = await Invoice.findById(invoiceId).populate("client");
+
+  const receipt = {
+    invoiceId: invoice.invoiceNumber,
+    date: new Date().toDateString(),
+    customerName: invoice.client.name,
+    customerEmail: invoice.client.email,
+    items: invoice.items,
+    totalAmount: invoice.total,
+    amountPaid: invoicePayments[0].payments.reduce((acc, payment) => {
+      return acc + payment.amount;
+    }, 0),
+    balance: invoice.balance,
+    payments: invoicePayments[0].payments,
+  };
+
+  console.log(receipt, "receipt");
+
+  const receiptTemplate = createReceiptTemplate(receipt);
+  // Send receipt as email
+  sendEmail({
+    email: receipt.customerEmail,
+    subject: `Payment Receipt for Invoice #${receipt.invoiceId}`,
+    html: receiptTemplate,
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: "Receipt sent to the client successfully",
+    data: {
+      receipt,
+    },
+  });
+});
 module.exports = {
   createPaymentForInvoice,
   getPaymentsForAnInvoice,
   getPaymentStats,
+  getRecieptForPayment,
 };

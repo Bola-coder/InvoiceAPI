@@ -15,4 +15,8 @@ router
   .route("/:invoiceId")
   .get(invoicePaymentController.getPaymentsForAnInvoice);
 
+router
+  .route("/:invoiceId/receipt")
+  .get(invoicePaymentController.getRecieptForPayment);
+
 module.exports = router;
