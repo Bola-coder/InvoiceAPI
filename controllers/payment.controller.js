@@ -18,6 +18,10 @@ const createNewSubscription = catchAsync(async (req, res, next) => {
     if (error) {
       return next(new AppError(error, 400));
     }
+    if (body.status === false) {
+      return next(new AppError("Failed to initialize payment", 400));
+    }
+    // console.log(body);
     return res.status(200).json({
       status: "success",
       message: "Payment initialized",
@@ -66,4 +70,41 @@ const paystackWebHook = catchAsync(async (req, res, next) => {
   }
 });
 
-module.exports = { createNewSubscription, verifySubscription, paystackWebHook };
+// Check subscribtion status
+const checkSubscriptionStatus = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return next(new AppError("Please provide user email address"));
+  }
+
+  const payment = await Payment.findOne({ email });
+
+  if (!payment) {
+    return next(
+      new AppError(
+        "You are not subscribed to the premium service. Please subscribe to use this service"
+      )
+    );
+  }
+
+  if (payment.status !== "success") {
+    return next(
+      new AppError(
+        "Your subscription to the premium service has ended. Please subscribe again"
+      )
+    );
+  }
+
+  res.status(200).json({
+    status: "success",
+    messahe: "You are currently subscribed to the premium services",
+  });
+});
+
+module.exports = {
+  createNewSubscription,
+  verifySubscription,
+  paystackWebHook,
+  checkSubscriptionStatus,
+};

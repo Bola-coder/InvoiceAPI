@@ -8,7 +8,13 @@ const router = express.Router();
 router.use(authMiddleware.protectRoute, authMiddleware.checkIfEmailIsVerified);
 router.use(subscriberMiddleware.checkIfUserIsSubscribed);
 
-router.route("/").post(companyController.createNewCompany);
+router
+  .route("/")
+  .post(companyController.createNewCompany)
+  .get(companyController.getAllCompanies);
+
+router.route("/:companyId").get(companyController.getComapnyDetails);
+
 router
   .route("/:companyId/logo")
   .patch(logoUploads, companyController.uploadCompanyLogo);

@@ -12,7 +12,7 @@ const getCompanies = async function (userId) {
 
 const getCompanyById = async function (userId, companyId) {
   const company = await Company.findOne({
-    id: companyId,
+    _id: companyId,
     user: userId,
   }).populate("user");
   return company;

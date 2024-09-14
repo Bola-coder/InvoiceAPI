@@ -39,6 +39,11 @@ const companySchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
+
+  currency: {
+    type: String,
+    required: [true, "Please upload your company's currency"],
+  },
 });
 
 const Company = mongoose.model("Company", companySchema);

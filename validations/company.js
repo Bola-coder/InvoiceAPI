@@ -19,7 +19,10 @@ const validateCompanyCreation = (obj) => {
       .string()
       .required()
       .error(() => Error("Please provide the company address")),
-
+    currency: joi
+      .string()
+      .required()
+      .error(() => Error("Please provide the company's currency")),
     logo: joi.string().error(() => Error("Please provide the company address")),
   });
   return schema.validate(obj);

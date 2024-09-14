@@ -55,11 +55,14 @@ const uploadCompanyLogo = catchAsync(async (req, res, next) => {
     return next(new AppError("Please upload an image for the logo", 400));
   }
 
-  const company = await getCompanyById(companyId);
-  console.log(company);
-  if (!company?.user?._id.equals(userId)) {
+  console.log(companyId);
+  console.log(userId);
+  const company = await getCompanyById(userId, companyId);
+  console.log("Company is: ", company);
+
+  if (!company) {
     return next(
-      new AppError("You are not authorized to modify this company", 401)
+      new AppError("Failed to find company with the specified id for user")
     );
   }
 
@@ -67,7 +70,7 @@ const uploadCompanyLogo = catchAsync(async (req, res, next) => {
 
   try {
     const result = await uploader.upload(file, {
-      folder: "InvoiceAPI/companies/logo",
+      folder: `InvoiceAPI/companies/${company.email}/logo`,
       use_filename: true,
     });
     const logo = result.secure_url;
@@ -188,4 +191,9 @@ const deleteCompanyRecord = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { createNewCompany, uploadCompanyLogo, getAllCompanies };
+module.exports = {
+  createNewCompany,
+  uploadCompanyLogo,
+  getAllCompanies,
+  getComapnyDetails,
+};
