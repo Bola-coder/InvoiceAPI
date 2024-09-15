@@ -11,6 +11,8 @@ router
   .get(clientController.getAllClientsForUser)
   .post(clientController.createNewClient);
 
+router.route("/company/create").post(clientController.createClientForCompany);
+
 router
   .route("/:clientId")
   .get(clientController.getClientDetails)

@@ -44,6 +44,30 @@ const companySchema = mongoose.Schema({
     type: String,
     required: [true, "Please upload your company's currency"],
   },
+
+  // An array of invoices
+  invoices: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Invoice",
+    },
+  ],
+
+  clients: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Client",
+    },
+  ],
+
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+
+  updatedAt: {
+    type: Date,
+  },
 });
 
 const Company = mongoose.model("Company", companySchema);

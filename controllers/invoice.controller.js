@@ -11,6 +11,7 @@ const {
 const {
   validateInvoiceCreation,
   validateInvoiceUpdate,
+  validateCompanyInvoiceCreation,
 } = require("./../validations/invoice");
 const { getClientById } = require("./../repositories/client");
 const catchAsync = require("./../utils/catchAsync");
@@ -20,6 +21,7 @@ const APIFeatures = require("./../utils/ApiFeatures");
 const createInvoiceDetailsTemplate = require("./../helper/createInvoiceDetailsTemplate");
 const convertHtmlTemplateToPdf = require("./../helper/convertHtmlToPdf");
 const { uploader } = require("./../utils/cloudinary");
+const { getCompanyById } = require("../repositories/company");
 
 // Create Invoice
 const createNewInvoice = catchAsync(async (req, res, next) => {
@@ -405,8 +407,55 @@ const getPaymentStatsForDays = catchAsync(async (req, res, next) => {
   });
 });
 
-// Features to add
-// Send Invoice to Client
+// company related invoices functions
+// Create an invoice for a company
+const createInvoiceForCompany = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const { error } = validateCompanyInvoiceCreation(req.body);
+  if (error) {
+    return next(new AppError(`Validation Error: ${error.message}`, 400));
+  }
+
+  const company = await getCompanyById(userId, req.body.company);
+
+  if (!company) {
+    return next(new AppError("Company with the specified ID not found", 404));
+  }
+
+  const client = await getClientById(req.body.client, userId);
+
+  if (!client) {
+    return next(new AppError("Client with the specified ID not found", 404));
+  }
+
+  const invoiceData = {
+    ...req.body,
+    user: userId,
+  };
+
+  const invoice = await createInvoice({
+    ...invoiceData,
+  });
+
+  if (!invoice) {
+    return next(new AppError("Invoice not created", 400));
+  }
+  //   Calculate the invoice total
+  invoice.calculateTotal();
+  await invoice.save();
+
+  // Save the invoice to the invoices array in company
+  company.invoices.push(invoice._id);
+  await company.save();
+
+  res.status(201).json({
+    status: "success",
+    message: "Invoice created successfully",
+    data: {
+      invoice,
+    },
+  });
+});
 
 module.exports = {
   createNewInvoice,
@@ -420,4 +469,5 @@ module.exports = {
   getInvoiceByStatusGraphStat,
   getTotalNumberOfInvoicesCreatedEachDay,
   getPaymentStatsForDays,
+  createInvoiceForCompany,
 };

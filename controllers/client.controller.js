@@ -8,7 +8,9 @@ const {
 const {
   validateClientCreation,
   validateClientUpdate,
+  validateCompanyClientCreation,
 } = require("../validations/client");
+const { getCompanyById } = require("../repositories/company");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 
@@ -139,10 +141,54 @@ const removeClient = catchAsync(async (req, res, next) => {
   });
 });
 
+// company related controllers
+// Create client for a company
+const createClientForCompany = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const { error } = validateCompanyClientCreation(req.body);
+  if (error) {
+    return next(new AppError(`Validation Error: ${error.message}`, 400));
+  }
+  const companyId = req.body.company;
+  // Check if the company exists
+  const company = await getCompanyById(userId, companyId);
+  if (!company) {
+    return next(new AppError("Company not found", 404));
+  }
+
+  const clientData = {
+    ...req.body,
+    user: req.user._id,
+    company: companyId,
+  };
+
+  const client = await createClient({
+    user: userId,
+    company: companyId,
+    ...clientData,
+  });
+
+  if (!client) {
+    return next(new AppError("Client not created", 400));
+  }
+
+  company.clients.push(client._id);
+  await company.save();
+
+  res.status(201).json({
+    status: "success",
+    message: "Client created successfully",
+    data: {
+      client,
+    },
+  });
+});
+
 module.exports = {
   createNewClient,
   getAllClientsForUser,
   getClientDetails,
   updateClientDetails,
   removeClient,
+  createClientForCompany,
 };

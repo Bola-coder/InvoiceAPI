@@ -6,7 +6,11 @@ const createCompany = async function (companyData) {
 };
 
 const getCompanies = async function (userId) {
-  const companies = await Company.find({ user: userId }).populate("user");
+  const companies = await Company.find({ user: userId }).populate([
+    "user",
+    "invoices",
+    "clients",
+  ]);
   return companies;
 };
 
@@ -14,7 +18,15 @@ const getCompanyById = async function (userId, companyId) {
   const company = await Company.findOne({
     _id: companyId,
     user: userId,
-  }).populate("user");
+  })
+    .populate("user")
+    .populate({
+      path: "invoices",
+      populate: {
+        path: "client",
+      },
+    })
+    .populate("clients");
   return company;
 };
 

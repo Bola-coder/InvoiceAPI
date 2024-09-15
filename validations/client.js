@@ -41,7 +41,36 @@ const validateClientUpdate = (client) => {
   });
   return schema.validate(client);
 };
+
+const validateCompanyClientCreation = (client) => {
+  const schema = joi.object().keys({
+    company: joi
+      .string()
+      .required()
+      .error(new Error("Please provide a company")),
+    name: joi
+      .string()
+      .required()
+      .error(new Error("Please provide a client name")),
+    email: joi
+      .string()
+      .email()
+      .required()
+      .error(new Error("Please provide a valid client email")),
+    address: joi
+      .string()
+      .required()
+      .error(new Error("Please provide a client address")),
+    phoneNumber: joi
+      .string()
+      .required()
+      .error(new Error("Please provide a client phone number")),
+  });
+
+  return schema.validate(client);
+};
 module.exports = {
   validateClientCreation,
   validateClientUpdate,
+  validateCompanyClientCreation,
 };

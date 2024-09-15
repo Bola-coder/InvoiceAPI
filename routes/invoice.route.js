@@ -1,5 +1,6 @@
 const express = require("express");
 const authMidlleware = require("./../middlewares/auth.middleware");
+const subscriptionMiddleware = require("./../middlewares/subscriber.middleware");
 const invoiceController = require("./../controllers/invoice.controller");
 const router = express.Router();
 
@@ -32,5 +33,13 @@ router.get("/invoice/search", invoiceController.searchForInvoice);
 router
   .route("/convert/:invoiceId")
   .patch(invoiceController.convertInvoiceToPdf);
+
+// Company routes
+router
+  .route("/company/create")
+  .post(
+    subscriptionMiddleware.checkIfUserIsSubscribed,
+    invoiceController.createInvoiceForCompany
+  );
 
 module.exports = router;

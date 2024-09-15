@@ -26,6 +26,11 @@ const clientSchema = mongoose.Schema({
     ref: "User",
     required: true,
   },
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
+    required: true,
+  },
 });
 
 const Client = mongoose.model("Client", clientSchema);

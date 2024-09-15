@@ -65,6 +65,11 @@ const invoiceSchema = mongoose.Schema({
   pdf: {
     type: String,
   },
+
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
+  },
 });
 
 invoiceSchema.index({ invoiceNumber: "text" });

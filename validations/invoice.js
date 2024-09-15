@@ -3,10 +3,6 @@ const joi = require("joi");
 // Validation for the invoice creation
 const validateInvoiceCreation = (obj) => {
   const schema = joi.object().keys({
-    // invoiceNumber: joi
-    //   .string()
-    //   .required()
-    //   .error(() => new Error("Please provide an invoice number")),
     client: joi
       .string()
       .required()
@@ -80,4 +76,52 @@ const validateInvoiceUpdate = (obj) => {
   return schema.validate(obj);
 };
 
-module.exports = { validateInvoiceCreation, validateInvoiceUpdate };
+const validateCompanyInvoiceCreation = (obj) => {
+  const schema = joi.object().keys({
+    client: joi
+      .string()
+      .required()
+      .error(() => new Error("Please provide a client id")),
+    invoiceDate: joi
+      .date()
+      .required()
+      .error(() => new Error("Please provide an invoice date")),
+    dueDate: joi
+      .date()
+      .required()
+      .error(() => new Error("Please provide a due date")),
+    items: joi
+      .array()
+      .items(
+        joi.object().keys({
+          itemName: joi
+            .string()
+            .required()
+            .error(() => new Error("Please provide an item name")),
+          quantity: joi
+            .number()
+            .required()
+            .error(() => new Error("Please provide a quantity")),
+          price: joi
+            .number()
+            .required()
+            .error(() => new Error("Please provide a price")),
+        })
+      )
+      .required()
+      .error(() => new Error("Please provide an item")),
+    //   Total is not required because it can be calculated from the items
+    total: joi.number().error(() => new Error("Please provide a total")),
+    company: joi
+      .string()
+      .required()
+      .error(() => new Error("Please provide the company ID")),
+  });
+  return schema.validate(obj);
+};
+
+module.exports = {
+  validateInvoiceCreation,
+  validateInvoiceUpdate,
+  validateCompanyInvoiceCreation,
+};
