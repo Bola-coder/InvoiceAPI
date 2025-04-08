@@ -113,7 +113,7 @@ const getAllCompanies = catchAsync(async (req, res, next) => {
 });
 
 // Get comapny by id
-const getComapnyDetails = catchAsync(async (req, res, next) => {
+const getCompanyDetails = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
   const companyId = req.params.companyId;
 
@@ -195,5 +195,7 @@ module.exports = {
   createNewCompany,
   uploadCompanyLogo,
   getAllCompanies,
-  getComapnyDetails,
+  getCompanyDetails,
+  updateCompanyDetails,
+  deleteCompanyRecord,
 };

@@ -28,8 +28,10 @@ const userSchema = mongoose.Schema({
     unique: [true, "Phone number already in use"],
     required: [true, "Please provide your phone number"],
   },
+  address: {
+    type: String,
+  },
   role: {
-    //This type will be used to determine the what actions users can perform based on subsxription
     type: String,
     enum: ["user", "admin", "superadmin"],
     default: "user",

@@ -13,7 +13,10 @@ router
   .post(companyController.createNewCompany)
   .get(companyController.getAllCompanies);
 
-router.route("/:companyId").get(companyController.getComapnyDetails);
+router
+  .route("/:companyId")
+  .get(companyController.getCompanyDetails)
+  .patch(companyController.updateCompanyDetails);
 
 router
   .route("/:companyId/logo")
